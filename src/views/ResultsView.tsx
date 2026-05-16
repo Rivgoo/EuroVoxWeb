@@ -1,65 +1,34 @@
 import React, { useState, useMemo } from 'react';
 import { pdf } from '@react-pdf/renderer';
-import { IconDownload } from '@tabler/icons-react';
-import { Country, CriterionKey, RankedCountry, Scores } from '../types';
+import { IconDownload, IconShare } from '@tabler/icons-react';
+import { Country, CriterionKey, VoteStore, Scores } from '../types';
 import { COUNTRIES } from '../data/countries';
 import { ResultCard } from '../components/ResultCard';
 import { VotingModal } from '../components/VotingModal';
 import { PdfReport } from '../components/PdfReport';
 import { ExportModal } from '../components/ExportModal';
+import { ShareModal } from '../components/ShareModal';
+import { encodeShareData } from '../utils/share';
+import { calculateRanks } from '../utils/rank';
 
 interface ResultsViewProps {
+  votes: VoteStore;
   getScores: (countryId: number) => Scores;
-  getVotedCount: (countryId: number) => number;
-  getTotalScore: (countryId: number) => number;
   setScore: (countryId: number, criterion: CriterionKey, value: number | null) => void;
   fullyVotedCount: number;
 }
 
 export const ResultsView: React.FC<ResultsViewProps> = ({
+  votes,
   getScores,
-  getVotedCount,
-  getTotalScore,
   setScore,
   fullyVotedCount,
 }) => {
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
-  const ranked: RankedCountry[] = useMemo(() => {
-    const withScores = COUNTRIES.map(c => ({
-      ...c,
-      scores: getScores(c.id),
-      totalScore: getTotalScore(c.id),
-      averageScore: getVotedCount(c.id) === 4 ? getTotalScore(c.id) / 4 : 0,
-      votedCount: getVotedCount(c.id),
-      rank: 0,
-    }));
-
-    withScores.sort((a, b) => {
-      if (a.votedCount === 4 && b.votedCount < 4) return -1;
-      if (b.votedCount === 4 && a.votedCount < 4) return 1;
-      if (a.totalScore !== b.totalScore) return b.totalScore - a.totalScore;
-      if (a.votedCount !== b.votedCount) return b.votedCount - a.votedCount;
-      return a.performanceOrder - b.performanceOrder;
-    });
-
-    let currentRank = 1;
-    withScores.forEach((c, i) => {
-      if (i === 0) c.rank = 1;
-      else {
-        const prev = withScores[i - 1];
-        if (c.totalScore === prev.totalScore && c.votedCount === prev.votedCount && c.votedCount === 4) {
-          c.rank = prev.rank;
-        } else {
-          currentRank = i + 1;
-          c.rank = currentRank;
-        }
-      }
-    });
-
-    return withScores;
-  }, [getScores, getTotalScore, getVotedCount]);
+  const ranked = useMemo(() => calculateRanks(votes), [votes]);
 
   const handleExport = async (userName: string) => {
     const doc = <PdfReport ranked={ranked} userName={userName} />;
@@ -84,10 +53,16 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
     setShowExportModal(false);
   };
 
+  const handleGenerateShareLink = (userName: string): string => {
+    const encoded = encodeShareData(userName, votes);
+    const baseUrl = window.location.origin + window.location.pathname;
+    return `${baseUrl}?s=${encoded}`;
+  };
+
   return (
     <div>
       <div className="results-header">
-        <div>
+        <div className="results-header__text">
           <h2 className="results-title">Рейтинг</h2>
           <p className="results-subtitle">
             {fullyVotedCount === COUNTRIES.length
@@ -96,14 +71,24 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
           </p>
         </div>
 
-        <button 
-          className="pdf-btn" 
-          onClick={() => setShowExportModal(true)}
-          disabled={fullyVotedCount === 0}
-        >
-          <IconDownload stroke={1.5} size={18} />
-          <span>PDF</span>
-        </button>
+        <div className="results-header__actions">
+          <button 
+            className="action-btn action-btn--primary" 
+            onClick={() => setShowShareModal(true)}
+            disabled={fullyVotedCount === 0}
+          >
+            <IconShare stroke={1.5} size={18} />
+            <span>Поділитися</span>
+          </button>
+          <button 
+            className="action-btn" 
+            onClick={() => setShowExportModal(true)}
+            disabled={fullyVotedCount === 0}
+          >
+            <IconDownload stroke={1.5} size={18} />
+            <span>PDF</span>
+          </button>
+        </div>
       </div>
 
       {fullyVotedCount === 0 ? (
@@ -135,6 +120,13 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
         <ExportModal
           onConfirm={handleExport}
           onCancel={() => setShowExportModal(false)}
+        />
+      )}
+
+      {showShareModal && (
+        <ShareModal
+          onGenerate={handleGenerateShareLink}
+          onClose={() => setShowShareModal(false)}
         />
       )}
     </div>
