@@ -141,7 +141,7 @@ export const PdfReport: React.FC<PdfReportProps> = ({ userName, ranked }) => {
             <Text style={[styles.colAvg, styles.headerText]}>Сер.</Text>
           </View>
 
-          {ranked.map((c, index) => {
+          {ranked.map((c) => {
             const isTop1 = c.rank === 1;
             const isComplete = c.votedCount === 4;
             
