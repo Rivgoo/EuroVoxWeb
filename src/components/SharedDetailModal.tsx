@@ -31,7 +31,7 @@ export const SharedDetailModal: React.FC<SharedDetailModalProps> = ({
   const sharedColor = getHeatmapColor(sharedTotal, 40);
 
   const localTotal = (localScores.vocal ?? 0) + (localScores.stage ?? 0) + (localScores.song ?? 0) + (localScores.overall ?? 0);
-  const localColor = getHeatmapColor(localTotal, 40);
+  const localColor = localTotal > 0 ? getHeatmapColor(localTotal, 40) : 'var(--text-muted)';
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') onClose();
@@ -86,7 +86,6 @@ export const SharedDetailModal: React.FC<SharedDetailModalProps> = ({
             />
           </div>
 
-          {/* Загальний бал: Спліт-в'ю якщо увімкнено порівняння */}
           <div className="shared-score-split">
             <div className="shared-score-split__box">
               <div className="shared-score-split__label">Оцінка {authorName}</div>
@@ -100,7 +99,7 @@ export const SharedDetailModal: React.FC<SharedDetailModalProps> = ({
                 <div className="shared-score-split__divider" />
                 <div className="shared-score-split__box">
                   <div className="shared-score-split__label">Ваша оцінка</div>
-                  <div className="shared-score-split__value" style={{ color: localTotal > 0 ? localColor : 'var(--text-muted)' }}>
+                  <div className="shared-score-split__value" style={{ color: localColor }}>
                     {localTotal > 0 ? localTotal : '—'}<span>/40</span>
                   </div>
                 </div>
@@ -108,7 +107,6 @@ export const SharedDetailModal: React.FC<SharedDetailModalProps> = ({
             )}
           </div>
 
-          {/* Детальні смужки прогресу */}
           <div className="shared-bars-container">
             {CRITERIA.map(c => {
               const sVal = sharedScores[c.key];
@@ -117,6 +115,7 @@ export const SharedDetailModal: React.FC<SharedDetailModalProps> = ({
 
               const lVal = localScores[c.key];
               const lPct = lVal !== null ? (lVal / 10) * 100 : 0;
+              const lColor = lVal !== null ? getHeatmapColor(lVal, 10) : 'transparent';
 
               return (
                 <div key={c.key} className="score-bar-row">
@@ -125,7 +124,6 @@ export const SharedDetailModal: React.FC<SharedDetailModalProps> = ({
                     {c.labelUk}
                   </div>
                   
-                  {/* Смужка Автора */}
                   <div className="score-bar-dual">
                     <div className="score-bar-dual__info">
                       <span className="score-bar-dual__name">{authorName}</span>
@@ -136,15 +134,14 @@ export const SharedDetailModal: React.FC<SharedDetailModalProps> = ({
                     </div>
                   </div>
 
-                  {/* Смужка Користувача (якщо увімкнено порівняння) */}
                   {isCompareMode && (
-                    <div className="score-bar-dual">
+                    <div className="score-bar-dual score-bar-dual--local">
                       <div className="score-bar-dual__info">
                         <span className="score-bar-dual__name">Ви</span>
                         <span className="score-bar-dual__val">{lVal !== null ? `${lVal}/10` : '—'}</span>
                       </div>
                       <div className="score-bar-track">
-                        <div className="score-bar-fill" style={{ width: `${lPct}%`, backgroundColor: lVal !== null ? localColor : 'transparent' }} />
+                        <div className="score-bar-fill" style={{ width: `${lPct}%`, backgroundColor: lColor }} />
                       </div>
                     </div>
                   )}

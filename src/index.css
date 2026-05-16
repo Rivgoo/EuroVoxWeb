@@ -508,6 +508,7 @@ a {
   color: var(--text-primary);
   font-weight: 700;
 }
+
 /* — DIALOG — */
 .dialog-overlay {
   position: fixed;
@@ -703,7 +704,7 @@ a {
   to { transform: translateY(0); }
 }
 
-/* Modal Header (Inline layout) */
+/* Modal Header */
 .modal-header {
   display: flex;
   align-items: flex-start;
@@ -753,7 +754,7 @@ a {
   color: var(--text-primary);
 }
 
-/* YouTube Native Iframe Container */
+/* YouTube Container */
 .yt-container {
   position: relative;
   width: 100%;
@@ -866,7 +867,6 @@ a {
   justify-content: center;
 }
 
-/* Fix for immediate hover/tap response */
 @media (hover: hover) {
   .score-btn:not([class*="score-btn--"]):hover {
     background: var(--bg-elevated);
@@ -931,62 +931,7 @@ a {
   background: var(--border-strong);
 }
 
-/* — RESULTS VIEW — */
-.results-header {
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-.results-title {
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-.results-subtitle {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-.pdf-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-  transition: var(--transition);
-}
-.pdf-btn:hover:not(:disabled) {
-  background: var(--border-strong);
-}
-.pdf-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-secondary);
-}
-.empty-state p {
-  font-size: 15px;
-  line-height: 1.5;
-  margin-top: 16px;
-}
-
-/* Focus */
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.animate-spin { animation: spin 1s linear infinite; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+/* — RESULTS VIEW (HEADER ACTIONS RESPONSIVE) — */
 .results-header {
   margin-bottom: 20px;
   display: flex;
@@ -998,6 +943,15 @@ a {
 .results-header__text {
   flex: 1;
   min-width: 200px;
+}
+.results-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.results-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
 }
 .results-header__actions {
   display: flex;
@@ -1042,6 +996,17 @@ a {
 .action-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+}
+.empty-state p {
+  font-size: 15px;
+  line-height: 1.5;
+  margin-top: 16px;
 }
 
 /* — SHARE MODAL LINKS — */
@@ -1325,8 +1290,17 @@ a {
 .score-bar-dual {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
+
+.score-bar-dual--local {
+  background: var(--bg-elevated);
+  padding: 12px 12px;
+  margin: 4px -12px -4px -12px; 
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+
 .score-bar-dual__info {
   display: flex;
   justify-content: space-between;
@@ -1342,7 +1316,7 @@ a {
 .score-bar-track {
   width: 100%;
   height: 6px;
-  background: var(--bg-elevated);
+  background: var(--bg-surface);
   border-radius: 99px;
   overflow: hidden;
 }
@@ -1351,3 +1325,12 @@ a {
   border-radius: 99px;
   transition: width 1s cubic-bezier(0.3, 1, 0.5, 1);
 }
+
+/* Focus */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.animate-spin { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
