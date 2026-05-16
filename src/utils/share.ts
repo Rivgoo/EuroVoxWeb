@@ -1,3 +1,4 @@
+import LZString from 'lz-string';
 import { VoteStore } from '../types';
 
 export function encodeShareData(userName: string, votes: VoteStore): string {
@@ -16,15 +17,24 @@ export function encodeShareData(userName: string, votes: VoteStore): string {
   
   const raw = `${userName}|${parts.join('-')}`;
 
-  return btoa(encodeURIComponent(raw));
+  return LZString.compressToEncodedURIComponent(raw);
 }
-
 
 export function decodeShareData(encoded: string): { userName: string, votes: VoteStore } | null {
   try {
-    const raw = decodeURIComponent(atob(encoded));
-    const splitIdx = raw.indexOf('|');
+    let raw = LZString.decompressFromEncodedURIComponent(encoded);
     
+    if (!raw) {
+      try {
+        raw = decodeURIComponent(atob(encoded));
+      } catch {
+        return null;
+      }
+    }
+
+    if (!raw) return null;
+
+    const splitIdx = raw.indexOf('|');
     if (splitIdx === -1) return null;
     
     const userName = raw.slice(0, splitIdx);
@@ -48,7 +58,8 @@ export function decodeShareData(encoded: string): { userName: string, votes: Vot
     }
     
     return { userName, votes };
-  } catch {
+  } catch (error) {
+    console.error("Помилка декодування посилання:", error);
     return null;
   }
 }
