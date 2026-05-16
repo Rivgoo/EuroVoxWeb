@@ -31,7 +31,7 @@ export const SharedDetailModal: React.FC<SharedDetailModalProps> = ({
   const sharedColor = getHeatmapColor(sharedTotal, 40);
 
   const localTotal = (localScores.vocal ?? 0) + (localScores.stage ?? 0) + (localScores.song ?? 0) + (localScores.overall ?? 0);
-  const localColor = '#12d2c2';
+  const localColor = getHeatmapColor(localTotal, 40);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') onClose();
